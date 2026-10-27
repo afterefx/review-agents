@@ -47,6 +47,7 @@ This copies the agents into `<project>/.claude/agents/` and the skill into `<pro
 | Option | Effect |
 |---|---|
 | `--link` | Symlink to this repo instead of copying, so edits here take effect immediately. Local use only: the links point to absolute paths on your machine, so CI and other contributors see broken links. |
+| `--copilot` | Install for GitHub Copilot instead. See [GitHub Copilot](#github-copilot) below. Can't be combined with `--link`. |
 | `--force` | Replace installed files that differ from this repo's versions. Without it the script skips them, lists them, and exits 1, so local edits are never lost silently. |
 | `--review-template` | Also copy `templates/REVIEW.md` into the project, unless it already has a `REVIEW.md`, `.github/REVIEW.md` or `docs/REVIEW.md`. |
 
@@ -61,6 +62,25 @@ ln -s "$PWD"/skills/pre-pr ~/.claude/skills/pre-pr
 ```
 
 Agents and skills in a project's `.claude/` take precedence over user-level ones with the same name.
+
+### GitHub Copilot
+
+```sh
+/path/to/review-agents/install.sh --copilot /path/to/project
+```
+
+This writes the agents to `<project>/.github/agents/<name>.agent.md` and the skill to `<project>/.github/skills/pre-pr/`. Copilot's agent mode in VS Code, Copilot CLI and the Copilot cloud agent read agents and skills from there. The agent instructions are unchanged. Only the frontmatter is rewritten:
+
+- `tools: Read, Grep, Glob, Bash` becomes `tools: read, search, execute`, Copilot's names for the same tools.
+- `model: inherit` is removed. Copilot reads `model` as a model name, and an agent without one uses the session's default model.
+
+Don't install both layouts in one project. VS Code also reads `.claude/agents/`, so you'd see every agent twice.
+
+Limitations compared with Claude Code:
+
+- **Parallel subagents.** `/pre-pr` starts the bug hunters, the security pass and the risk classifier at the same time, and then three verifiers. Copilot can run custom agents as subagents, but whether it runs them in parallel depends on the product. In VS Code, enable the subagent tool (`agent/runSubagent`) for the session. If the agents run one after another, the review is slower but the vote works the same way.
+- **Read-only is enforced by the prompts only.** `execute` gives an agent the shell, and the prompts limit it to read-only `git` commands. Claude Code works the same way.
+- **Copilot code review on GitHub.com** doesn't run custom agents. Run `/pre-pr` locally before you open the PR.
 
 ## Using the agents directly
 

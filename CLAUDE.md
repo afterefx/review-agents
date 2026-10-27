@@ -30,6 +30,7 @@ The files depend on each other by exact strings. When you change one side, updat
   - the risk tiers: `risk-classifier.md`, the template, `README.md`
   - the 3-round cap and the 3-Nit cap: `SKILL.md`, the template, `README.md`
 - **Agent names.** `SKILL.md` spawns agents by their frontmatter `name`, so renaming an agent file means updating the skill and the README.
+- **Copilot frontmatter.** `install.sh --copilot` rewrites each agent's `tools` and `model` lines for Copilot (see `copilot_agent`). If you add a tool to an agent or change its `model`, check that the mapping still covers it.
 
 To find every place that uses a string before you change it, run `grep -rn '<string>' .`.
 
@@ -50,6 +51,8 @@ bash -n install.sh
 command -v shellcheck >/dev/null && shellcheck install.sh
 t=$(mktemp -d) && ./install.sh --review-template "$t" && ./install.sh "$t" && ./install.sh --link "$t" && rm -rf "$t"
 ```
+
+If you changed the `--copilot` path, also run `t=$(mktemp -d) && ./install.sh --copilot "$t" && ./install.sh --copilot "$t" && head -5 "$t"/.github/agents/*.agent.md && rm -rf "$t"`.
 
 The smoke test should print `added` lines on the first run, all `ok` on the second, and `updated` when it switches to links. If you changed `install.sh`, also test `--force` against a file that has local edits: without the flag the script should skip the file and exit 1. Make that edit in a *copied* install. In a `--link` install the files are symlinks into this repo, so editing them changes the repo's own files.
 

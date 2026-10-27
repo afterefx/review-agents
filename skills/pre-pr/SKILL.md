@@ -5,7 +5,7 @@ description: Run the pre-PR review pipeline on the current branch. It runs the p
 
 # Pre-PR review pipeline
 
-Run these steps in order. Steps 2, 3 and 4 run in parallel: send all of their Agent calls in a single message.
+Run these steps in order. Steps 2, 3 and 4 run in parallel: start all of their subagents at once. In Claude Code, send every Agent call in a single message.
 
 ## 0. Scope
 
